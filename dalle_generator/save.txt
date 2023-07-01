@@ -1,0 +1,174 @@
+from django.shortcuts import render
+import openai
+
+def generate_image(request):
+    api_key = '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'
+    prompt = request.GET.get('prompt', 'Generate an image')
+    num_images = 1
+    size = '1024x1024'
+
+    openai.api_key = api_key
+
+    try:
+        response = openai.Image.create(
+            prompt=prompt,
+            n=num_images,
+            size=size
+        )
+        print(response)  # Add this line to inspect the API response
+
+        image_url = response['data'][0]['url']
+
+        return render(request, 'dalle_generator/generate_image.html', {'image_url': image_url, 'prompt': prompt})
+
+    except Exception as e:
+        error_message = str(e)
+        print(error_message)  # Add this line to inspect the exception message
+        return render(request, 'dalle_generator/error.html', {'error_message': error_message})
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DALL-E Image Generator</title>
+</head>
+<body>
+    <h1>Generate an Image</h1>
+    <form action="{% url 'generate_image' %}" method="GET">
+        <input type="text" name="prompt" placeholder="Enter your prompt">
+        <button type="submit">Generate</button>
+    </form>
+
+    <h2>Generated Image:</h2>
+    <p>Prompt: {{ prompt }}</p>
+    <img src="{{ image_url }}" alt="Generated Image">
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DALL-E Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .image-container img {
+            width: 300px;
+            margin: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .image-container a {
+            display: block;
+            margin-top: 5px;
+            text-align: center;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .image-container a:hover {
+            color: #666;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+    <script>
+        // Add animation to the generated images
+        window.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('.image-container img');
+            images.forEach((image) => {
+                image.addEventListener('mouseover', () => {
+                    image.style.transform = 'scale(1.1)';
+                });
+
+                image.addEventListener('mouseout', () => {
+                    image.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Generate an Image</h1>
+    <form action="{% url 'generate_image' %}" method="GET">
+        <input type="text" name="prompt" placeholder="Enter your prompt">
+        <select name="size">
+            <option value="256x256">256x256</option>
+            <option value="512x512">512x512</option>
+            <option value="1024x1024">1024x1024</option>
+        </select>
+        <button type="submit">Generate</button>
+    </form>
+
+    <h2>Generated Images:</h2>
+    <div class="image-container">
+        {% if error_message %}
+            <p>{{ error_message }}</p>
+        {% else %}
+            {% for image_url in images %}
+                <div>
+                    <img src="{{ image_url }}" alt="Generated Image">
+                    <br>
+                    <a href="{{ image_url }}" download>Download Image</a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <h2>Supported Sizes:</h2>
+    <ul>
+        <li>256x256</li>
+        <li>512x512</li>
+        <li>1024x1024</li>
+    </ul>
+</body>
+</html>
+

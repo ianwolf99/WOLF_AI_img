@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DALL-E Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="text"],
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .image-container div {
+            margin: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-container div:hover {
+            transform: scale(1.05);
+        }
+
+        .image-container img {
+            width: 300px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .image-container a {
+            display: block;
+            margin-top: 5px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .image-container a:hover {
+            color: #666;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+    <script>
+        // Add animation to the generated images
+        window.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('.image-container img');
+            images.forEach((image) => {
+                image.addEventListener('mouseover', () => {
+                    image.style.transform = 'scale(1.05)';
+                    image.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                });
+
+                image.addEventListener('mouseout', () => {
+                    image.style.transform = 'scale(1)';
+                    image.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Generate an Image</h1>
+    <form action="{% url 'generate_image' %}" method="GET">
+        <input type="text" name="prompt" placeholder="Enter your prompt">
+        <select name="size">
+            <option value="256x256">256x256</option>
+            <option value="512x512">512x512</option>
+            <option value="1024x1024">1024x1024</option>
+        </select>
+        <button type="submit">Generate</button>
+    </form>
+
+    <h2>Generated Images:</h2>
+    <div class="image-container">
+        {% if error_message %}
+            <p>{{ error_message }}</p>
+        {% else %}
+            {% for image_url in images %}
+                <div>
+                    <img src="{{ image_url }}" alt="Generated Image">
+                    <br>
+                    <a href="{{ image_url }}" download>Download Image</a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+</body>
+</html>
